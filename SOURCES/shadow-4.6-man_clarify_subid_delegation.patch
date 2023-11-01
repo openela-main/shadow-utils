@@ -1,0 +1,166 @@
+diff -up shadow-4.6/man/newgidmap.1.xml.man_clarify_subid_delegation shadow-4.6/man/newgidmap.1.xml
+--- shadow-4.6/man/newgidmap.1.xml.man_clarify_subid_delegation	2021-11-03 09:58:34.176484342 +0100
++++ shadow-4.6/man/newgidmap.1.xml	2021-11-03 09:58:34.191484452 +0100
+@@ -80,10 +80,15 @@
+   <refsect1 id='description'>
+     <title>DESCRIPTION</title>
+     <para>
+-      The <command>newgidmap</command> sets <filename>/proc/[pid]/gid_map</filename> based on its
+-      command line arguments and the gids allowed (either in <filename>/etc/subgid</filename> or
+-      through the configured NSS subid module).
+-      Note that the root user is not exempted from the requirement for a valid
++      The <command>newgidmap</command> sets <filename>/proc/[pid]/gid_map</filename>
++      based on its command line arguments and the gids allowed. Subgid
++      delegation can either be managed via <filename>/etc/subgid</filename>
++      or through the configured NSS subid module. These options are mutually
++      exclusive.
++    </para>
++
++    <para>
++      Note that the root group is not exempted from the requirement for a valid
+       <filename>/etc/subgid</filename> entry.
+     </para>
+ 
+diff -up shadow-4.6/man/newuidmap.1.xml.man_clarify_subid_delegation shadow-4.6/man/newuidmap.1.xml
+--- shadow-4.6/man/newuidmap.1.xml.man_clarify_subid_delegation	2021-11-03 09:58:34.176484342 +0100
++++ shadow-4.6/man/newuidmap.1.xml	2021-11-03 09:58:34.191484452 +0100
+@@ -80,9 +80,14 @@
+   <refsect1 id='description'>
+     <title>DESCRIPTION</title>
+     <para>
+-      The <command>newuidmap</command> sets <filename>/proc/[pid]/uid_map</filename> based on its
+-      command line arguments and the uids allowed (either in <filename>/etc/subuid</filename> or
+-      through the configured NSS subid module).
++      The <command>newuidmap</command> sets <filename>/proc/[pid]/uid_map</filename>
++      based on its command line arguments and the uids allowed. Subuid
++      delegation can either be managed via <filename>/etc/subuid</filename> or
++      through the configured NSS subid module. These options are mutually
++      exclusive.
++    </para>
++
++    <para>
+       Note that the root user is not exempted from the requirement for a valid
+       <filename>/etc/subuid</filename> entry.
+     </para>
+diff -up shadow-4.6/man/subgid.5.xml.man_clarify_subid_delegation shadow-4.6/man/subgid.5.xml
+--- shadow-4.6/man/subgid.5.xml.man_clarify_subid_delegation	2018-04-29 18:42:37.000000000 +0200
++++ shadow-4.6/man/subgid.5.xml	2021-11-03 09:59:55.752084920 +0100
+@@ -32,6 +32,18 @@
+ <!-- SHADOW-CONFIG-HERE -->
+ ]>
+ <refentry id='subgid.5'>
++  <refentryinfo>
++    <author>
++      <firstname>Eric</firstname>
++      <surname>Biederman</surname>
++      <contrib>Creation, 2013</contrib>
++    </author>
++    <author>
++      <firstname>Iker</firstname>
++      <surname>Pedrosa</surname>
++      <contrib>Developer, 2021</contrib>
++    </author>
++  </refentryinfo>
+   <refmeta>
+     <refentrytitle>subgid</refentrytitle>
+     <manvolnum>5</manvolnum>
+@@ -41,12 +53,37 @@
+   </refmeta>
+   <refnamediv id='name'>
+     <refname>subgid</refname>
+-    <refpurpose>the subordinate gid file</refpurpose>
++    <refpurpose>the configuration for subordinate group ids</refpurpose>
+   </refnamediv>
+ 
+   <refsect1 id='description'>
+     <title>DESCRIPTION</title>
+     <para>
++      Subgid authorizes a group id to map ranges of group ids from its namespace
++      into child namespaces.
++    </para>
++    <para>
++      The delegation of the subordinate gids can be configured via the
++      <replaceable>subid</replaceable> field in
++      <filename>/etc/nsswitch.conf</filename> file. Only one value can be set
++      as the delegation source. Setting this field to
++      <replaceable>files</replaceable> configures the delegation of gids to
++      <filename>/etc/subgid</filename>. Setting any other value treats
++      the delegation as a plugin following with a name of the form
++      <replaceable>libsubid_$value.so</replaceable>. If the value or plugin is
++      missing, then the subordinate gid delegation falls back to
++      <replaceable>files</replaceable>.
++    </para>
++    <para>
++      Note, that <command>groupadd</command> will only create entries in
++      <filename>/etc/subgid</filename> if subid delegation is managed via subid
++      files.
++    </para>
++  </refsect1>
++
++  <refsect1 id='local-subordinate-delegation'>
++    <title>LOCAL SUBORDINATE DELEGATION</title>
++    <para>
+       Each line in <filename>/etc/subgid</filename> contains
+       a user name and a range of subordinate group ids that user
+       is allowed to use.
+diff -up shadow-4.6/man/subuid.5.xml.man_clarify_subid_delegation shadow-4.6/man/subuid.5.xml
+--- shadow-4.6/man/subuid.5.xml.man_clarify_subid_delegation	2018-04-29 18:42:37.000000000 +0200
++++ shadow-4.6/man/subuid.5.xml	2021-11-03 10:00:18.888255255 +0100
+@@ -32,6 +32,18 @@
+ <!-- SHADOW-CONFIG-HERE -->
+ ]>
+ <refentry id='subuid.5'>
++  <refentryinfo>
++    <author>
++      <firstname>Eric</firstname>
++      <surname>Biederman</surname>
++      <contrib>Creation, 2013</contrib>
++    </author>
++    <author>
++      <firstname>Iker</firstname>
++      <surname>Pedrosa</surname>
++      <contrib>Developer, 2021</contrib>
++    </author>
++  </refentryinfo>
+   <refmeta>
+     <refentrytitle>subuid</refentrytitle>
+     <manvolnum>5</manvolnum>
+@@ -41,12 +53,37 @@
+   </refmeta>
+   <refnamediv id='name'>
+     <refname>subuid</refname>
+-    <refpurpose>the subordinate uid file</refpurpose>
++    <refpurpose>the configuration for subordinate user ids</refpurpose>
+   </refnamediv>
+ 
+   <refsect1 id='description'>
+     <title>DESCRIPTION</title>
+     <para>
++      Subuid authorizes a user id to map ranges of user ids from its namespace
++      into child namespaces.
++    </para>
++    <para>
++      The delegation of the subordinate uids can be configured via the
++      <replaceable>subid</replaceable> field in
++      <filename>/etc/nsswitch.conf</filename> file. Only one value can be set
++      as the delegation source. Setting this field to
++      <replaceable>files</replaceable> configures the delegation of uids to
++      <filename>/etc/subuid</filename>. Setting any other value treats
++      the delegation as a plugin following with a name of the form
++      <replaceable>libsubid_$value.so</replaceable>. If the value or plugin is
++      missing, then the subordinate uid delegation falls back to
++      <replaceable>files</replaceable>.
++    </para>
++    <para>
++      Note, that <command>useradd</command> will only create entries in
++      <filename>/etc/subuid</filename> if subid delegation is managed via subid
++      files.
++    </para>
++  </refsect1>
++
++  <refsect1 id='local-subordinate-delegation'>
++    <title>LOCAL SUBORDINATE DELEGATION</title>
++    <para>
+       Each line in <filename>/etc/subuid</filename> contains
+       a user name and a range of subordinate user ids that user
+       is allowed to use.

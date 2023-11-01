@@ -1,0 +1,36 @@
+Index: shadow-4.5/lib/semanage.c
+===================================================================
+--- shadow-4.5.orig/lib/semanage.c
++++ shadow-4.5/lib/semanage.c
+@@ -143,6 +143,7 @@ static int semanage_user_mod (semanage_h
+ 		goto done;
+ 	}
+ 
++#if 0
+ 	ret = semanage_seuser_set_mlsrange (handle, seuser, DEFAULT_SERANGE);
+ 	if (ret != 0) {
+ 		fprintf (stderr,
+@@ -150,6 +151,7 @@ static int semanage_user_mod (semanage_h
+ 		ret = 1;
+ 		goto done;
+ 	}
++#endif
+ 
+ 	ret = semanage_seuser_set_sename (handle, seuser, seuser_name);
+ 	if (ret != 0) {
+@@ -200,6 +202,7 @@ static int semanage_user_add (semanage_h
+ 		goto done;
+ 	}
+ 
++#if 0
+ 	ret = semanage_seuser_set_mlsrange (handle, seuser, DEFAULT_SERANGE);
+ 	if (ret != 0) {
+ 		fprintf (stderr,
+@@ -208,6 +211,7 @@ static int semanage_user_add (semanage_h
+ 		ret = 1;
+ 		goto done;
+ 	}
++#endif
+ 
+ 	ret = semanage_seuser_set_sename (handle, seuser, seuser_name);
+ 	if (ret != 0) {

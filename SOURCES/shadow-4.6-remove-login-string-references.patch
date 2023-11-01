@@ -1,0 +1,19 @@
+diff -up shadow-4.6/man/login.defs.5.xml.remove_login_string_references shadow-4.6/man/login.defs.5.xml
+--- shadow-4.6/man/login.defs.5.xml.remove_login_string_references	2021-04-27 13:01:49.428338258 +0200
++++ shadow-4.6/man/login.defs.5.xml	2021-04-27 13:01:49.433338329 +0200
+@@ -58,7 +58,6 @@
+ <!ENTITY LOG_OK_LOGINS         SYSTEM "login.defs.d/LOG_OK_LOGINS.xml">
+ <!ENTITY LOG_UNKFAIL_ENAB      SYSTEM "login.defs.d/LOG_UNKFAIL_ENAB.xml">
+ <!ENTITY LOGIN_RETRIES         SYSTEM "login.defs.d/LOGIN_RETRIES.xml">
+-<!ENTITY LOGIN_STRING          SYSTEM "login.defs.d/LOGIN_STRING.xml">
+ <!ENTITY LOGIN_TIMEOUT         SYSTEM "login.defs.d/LOGIN_TIMEOUT.xml">
+ <!ENTITY MAIL_CHECK_ENAB       SYSTEM "login.defs.d/MAIL_CHECK_ENAB.xml">
+ <!ENTITY MAIL_DIR              SYSTEM "login.defs.d/MAIL_DIR.xml">
+@@ -214,7 +213,6 @@
+       &LOG_OK_LOGINS;
+       &LOG_UNKFAIL_ENAB;
+       &LOGIN_RETRIES;
+-      &LOGIN_STRING;
+       &LOGIN_TIMEOUT;
+       &MAIL_CHECK_ENAB;
+       &MAIL_DIR;
