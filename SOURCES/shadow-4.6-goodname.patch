@@ -1,0 +1,104 @@
+diff -up shadow-4.6/libmisc/chkname.c.goodname shadow-4.6/libmisc/chkname.c
+--- shadow-4.6/libmisc/chkname.c.goodname	2020-10-23 12:50:47.202529031 +0200
++++ shadow-4.6/libmisc/chkname.c	2020-10-23 12:54:54.604692559 +0200
+@@ -49,25 +49,44 @@
+ static bool is_valid_name (const char *name)
+ {
+ 	/*
+-	 * User/group names must match [a-z_][a-z0-9_-]*[$]
+-	 */
+-	if (('\0' == *name) ||
+-	    !((('a' <= *name) && ('z' >= *name)) || ('_' == *name))) {
++         * User/group names must match gnu e-regex:
++         *    [a-zA-Z0-9_.][a-zA-Z0-9_.-]{0,30}[a-zA-Z0-9_.$-]?
++         *
++         * as a non-POSIX, extension, allow "$" as the last char for
++         * sake of Samba 3.x "add machine script"
++         *
++         * Also do not allow fully numeric names or just "." or "..".
++         */
++	int numeric;
++
++	if ('\0' == *name ||
++	    ('.' == *name && (('.' == name[1] && '\0' == name[2]) ||
++			      '\0' == name[1])) ||
++	    !((*name >= 'a' && *name <= 'z') ||
++	      (*name >= 'A' && *name <= 'Z') ||
++	      (*name >= '0' && *name <= '9') ||
++	      *name == '_' ||
++	      *name == '.')) {
+ 		return false;
+ 	}
+ 
++	numeric = isdigit(*name);
++
+ 	while ('\0' != *++name) {
+-		if (!(( ('a' <= *name) && ('z' >= *name) ) ||
+-		      ( ('0' <= *name) && ('9' >= *name) ) ||
+-		      ('_' == *name) ||
+-		      ('-' == *name) ||
+-		      ( ('$' == *name) && ('\0' == *(name + 1)) )
++		if (!((*name >= 'a' && *name <= 'z') ||
++		      (*name >= 'A' && *name <= 'Z') ||
++		      (*name >= '0' && *name <= '9') ||
++		      *name == '_' ||
++		      *name == '.' ||
++		      *name == '-' ||
++		      (*name == '$' && name[1] == '\0')
+ 		     )) {
+ 			return false;
+ 		}
++		numeric &= isdigit(*name);
+ 	}
+ 
+-	return true;
++	return !numeric;
+ }
+ 
+ bool is_valid_user_name (const char *name)
+diff -up shadow-4.6/man/groupadd.8.xml.goodname shadow-4.6/man/groupadd.8.xml
+--- shadow-4.6/man/groupadd.8.xml.goodname	2018-04-29 18:42:37.000000000 +0200
++++ shadow-4.6/man/groupadd.8.xml	2020-10-23 12:50:47.202529031 +0200
+@@ -273,10 +273,14 @@
+    <refsect1 id='caveats'>
+      <title>CAVEATS</title>
+      <para>
+-       Groupnames must start with a lower case letter or an underscore,
+-       followed by lower case letters, digits, underscores, or dashes.
+-       They can end with a dollar sign.
+-       In regular expression terms: [a-z_][a-z0-9_-]*[$]?
++       Groupnames may begin with lower and upper case letters, digits,
++       underscores, or periods. They may continue with all the aforementioned
++       characters, or dashes. Finally, they can end with a dollar sign.
++
++       Fully numeric groupnames and groupnames containing only . or .. are
++       disallowed.
++
++       In regular expression terms: [a-zA-Z0-9_.][a-zA-Z0-9_.-]*[$]?
+      </para>
+      <para>
+        Groupnames may only be up to &GROUP_NAME_MAX_LENGTH; characters long.
+diff -up shadow-4.6/man/useradd.8.xml.goodname shadow-4.6/man/useradd.8.xml
+--- shadow-4.6/man/useradd.8.xml.goodname	2018-04-29 18:42:37.000000000 +0200
++++ shadow-4.6/man/useradd.8.xml	2020-10-23 12:50:47.202529031 +0200
+@@ -650,10 +650,16 @@
+     </para>
+ 
+     <para>
+-      Usernames must start with a lower case letter or an underscore,
+-      followed by lower case letters, digits, underscores, or dashes.
+-      They can end with a dollar sign.
+-      In regular expression terms: [a-z_][a-z0-9_-]*[$]?
++      Usernames may begin with lower and upper case letters, digits,
++      underscores, or periods. They may continue with all the aforementioned
++      characters, or dashes. Finally, they can end with a dollar sign.
++
++      Fully numeric usernames and usernames containing only . or .. are
++      disallowed. It is not recommended to use usernames beginning
++      with . character as their home directories will be hidden in
++      the <command>ls</command> output.
++
++      In regular expression terms: [a-zA-Z0-9_.][a-zA-Z0-9_.-]*[$]?
+     </para>
+     <para>
+       Usernames may only be up to 32 characters long.

@@ -1,0 +1,20 @@
+diff -up shadow-4.6/src/useradd.c.useradd-check-if-subid-range-exists shadow-4.6/src/useradd.c
+--- shadow-4.6/src/useradd.c.useradd-check-if-subid-range-exists	2023-05-17 10:39:41.457826153 +0200
++++ shadow-4.6/src/useradd.c	2023-05-17 10:41:30.937036772 +0200
+@@ -2019,14 +2019,14 @@ static void usr_update (void)
+ 		fail_exit (E_PW_UPDATE);
+ 	}
+ #ifdef ENABLE_SUBIDS
+-	if (is_sub_uid &&
++	if (is_sub_uid && !local_sub_uid_assigned(user_name) &&
+ 	    (sub_uid_add(user_name, sub_uid_start, sub_uid_count) == 0)) {
+ 		fprintf (stderr,
+ 		         _("%s: failed to prepare the new %s entry\n"),
+ 		         Prog, sub_uid_dbname ());
+ 		fail_exit (E_SUB_UID_UPDATE);
+ 	}
+-	if (is_sub_gid &&
++	if (is_sub_gid && !local_sub_gid_assigned(user_name) &&
+ 	    (sub_gid_add(user_name, sub_gid_start, sub_gid_count) == 0)) {
+ 		fprintf (stderr,
+ 		         _("%s: failed to prepare the new %s entry\n"),
