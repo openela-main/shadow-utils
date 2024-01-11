@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 6%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -74,6 +74,12 @@ Patch26: shadow-4.9-subordinateio-compare-owner-ID.patch
 # https://github.com/shadow-maint/shadow/commit/0593b330d8413e9694b5d6783bb90974c9b141c5
 # https://github.com/shadow-maint/shadow/commit/45d674621918664c8736f94f862e86bddf4c3fd4
 Patch27: shadow-4.9-badname-special-characters.patch
+# https://github.com/shadow-maint/shadow/commit/e0524e813a3bae2891b33a66f35876841c11cee7
+Patch28: shadow-4.9-useradd-check-if-subid-range-exists.patch
+# https://github.com/shadow-maint/shadow/commit/baae5b4a06c905d9f52ed1f922a0d7d0625d11cf
+Patch29: shadow-4.9-skip-over-reserved-ids.patch
+# https://github.com/shadow-maint/shadow/commit/65c88a43a23c2391dcc90c0abda3e839e9c57904
+Patch30: shadow-4.9-gpasswd-fix-password-leak.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -162,6 +168,9 @@ Development files for shadow-utils-subid.
 %patch25 -p1 -b .useradd-modify-check-ID-range-for-system-users
 %patch26 -p1 -b .subordinateio-compare-owner-ID
 %patch27 -p1 -b .badname-special-characters
+%patch28 -p1 -b .useradd-check-if-subid-range-exists
+%patch29 -p1 -b .skip-over-reserved-ids
+%patch30 -p1 -b .gpasswd-fix-password-leak
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -332,6 +341,13 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Wed Jul 12 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-8
+- gpasswd: fix password leak. Resolves: #2215948
+
+* Tue May 16 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-7
+- useradd: check if subid range exists for user. Resolves: #2179987
+- find_new_[gu]id: Skip over IDs that are reserved for legacy reasons. Resolves: #2179988
+
 * Wed Sep 28 2022 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-6
 - Change "badnames" to "badname" as this is the accepted option name. Resolves: #2076819
 
