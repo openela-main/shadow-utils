@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.6
-Release: 17%{?dist}
+Release: 19%{?dist}
 Epoch: 2
 URL: http://pkg-shadow.alioth.debian.org/
 Source0: https://github.com/shadow-maint/shadow/releases/download/v%{version}/shadow-%{version}.tar.xz
@@ -29,7 +29,7 @@ Patch21: shadow-4.6-move-home.patch
 Patch22: shadow-4.6-audit-update.patch
 Patch23: shadow-4.5-usermod-unlock.patch
 Patch24: shadow-4.2.1-no-lock-dos.patch
-Patch28: shadow-4.3.1-selinux-perms.patch
+Patch28: shadow-4.6-selinux-perms.patch
 Patch29: shadow-4.2.1-null-tm.patch
 Patch31: shadow-4.6-getenforce.patch
 Patch32: shadow-4.5-crypt_h.patch
@@ -94,6 +94,12 @@ Patch62: shadow-4.6-getsubids.patch
 Patch63: shadow-4.6-groupdel-fix-sigsegv-when-passwd-does-not-exist.patch
 # https://github.com/shadow-maint/shadow/commit/3ec32f9975f262073f8fbdecd2bfaee4a1d3db48
 Patch64: shadow-4.9-subordinateio-compare-owner-ID.patch
+# https://github.com/shadow-maint/shadow/commit/e0524e813a3bae2891b33a66f35876841c11cee7
+Patch65: shadow-4.6-useradd-check-if-subid-range-exists.patch
+# https://github.com/shadow-maint/shadow/commit/baae5b4a06c905d9f52ed1f922a0d7d0625d11cf
+Patch66: shadow-4.6-skip-over-reserved-ids.patch
+# https://github.com/shadow-maint/shadow/commit/65c88a43a23c2391dcc90c0abda3e839e9c57904
+Patch67: shadow-4.6-gpasswd-fix-password-leak.patch
 
 License: BSD and GPLv2+
 Group: System Environment/Base
@@ -194,6 +200,9 @@ Development files for shadow-utils-subid.
 %patch62 -p1 -b .getsubids
 %patch63 -p1 -b .groupdel-fix-sigsegv-when-passwd-does-not-exist
 %patch64 -p1 -b .subordinateio-compare-owner-ID
+%patch65 -p1 -b .useradd-check-if-subid-range-exists
+%patch66 -p1 -b .skip-over-reserved-ids
+%patch67 -p1 -b .gpasswd-fix-password-leak
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -364,6 +373,14 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Wed Jul 12 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-19
+- gpasswd: fix password leak. Resolves: #2215947
+
+* Wed May 17 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-18
+- Update patch to close label to reset libselinux state. Resolves: #1984740
+- useradd: check if subid range exists for user. Resolves: #2012929
+- find_new_[gu]id: Skip over IDs that are reserved for legacy reasons. Resolves: #1994269
+
 * Thu Jul 21 2022 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-17
 - subordinateio: also compare the owner ID. Resolves: #2093311
 - Fix release sources
