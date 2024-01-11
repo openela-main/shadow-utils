@@ -1,0 +1,21 @@
+diff -up shadow-4.6/src/useradd.c.useradd_dont_try_to_create_0_subuids shadow-4.6/src/useradd.c
+--- shadow-4.6/src/useradd.c.useradd_dont_try_to_create_0_subuids	2021-11-03 11:55:00.189562187 +0100
++++ shadow-4.6/src/useradd.c	2021-11-03 11:57:34.128658978 +0100
+@@ -2350,7 +2350,7 @@ int main (int argc, char **argv)
+ 	}
+ 
+ #ifdef ENABLE_SUBIDS
+-	if (is_sub_uid) {
++	if (is_sub_uid && subuid_count != 0) {
+ 		if (find_new_sub_uids(user_name, &sub_uid_start, &sub_uid_count) < 0) {
+ 			fprintf (stderr,
+ 			         _("%s: can't create subordinate user IDs\n"),
+@@ -2358,7 +2358,7 @@ int main (int argc, char **argv)
+ 			fail_exit(E_SUB_UID_UPDATE);
+ 		}
+ 	}
+-	if (is_sub_gid) {
++	if (is_sub_gid && subgid_count != 0) {
+ 		if (find_new_sub_gids(user_name, &sub_gid_start, &sub_gid_count) < 0) {
+ 			fprintf (stderr,
+ 			         _("%s: can't create subordinate group IDs\n"),
