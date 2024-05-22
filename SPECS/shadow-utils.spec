@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.6
-Release: 19%{?dist}
+Release: 22%{?dist}
 Epoch: 2
 URL: http://pkg-shadow.alioth.debian.org/
 Source0: https://github.com/shadow-maint/shadow/releases/download/v%{version}/shadow-%{version}.tar.xz
@@ -100,6 +100,7 @@ Patch65: shadow-4.6-useradd-check-if-subid-range-exists.patch
 Patch66: shadow-4.6-skip-over-reserved-ids.patch
 # https://github.com/shadow-maint/shadow/commit/65c88a43a23c2391dcc90c0abda3e839e9c57904
 Patch67: shadow-4.6-gpasswd-fix-password-leak.patch
+Patch68: shadow-4.6-salt-remove-rounds.patch
 
 License: BSD and GPLv2+
 Group: System Environment/Base
@@ -203,6 +204,7 @@ Development files for shadow-utils-subid.
 %patch65 -p1 -b .useradd-check-if-subid-range-exists
 %patch66 -p1 -b .skip-over-reserved-ids
 %patch67 -p1 -b .gpasswd-fix-password-leak
+%patch68 -p1 -b .salt-remove-rounds
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -373,6 +375,12 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Tue Nov 21 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-22
+- salt: remove rounds from salt string. Resolves: RHEL-16668
+
+* Thu Nov  2 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-21
+- login.defs: include SHA_CRYPT_MAX_ROUNDS. Resolves: RHEL-15024
+
 * Wed Jul 12 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-19
 - gpasswd: fix password leak. Resolves: #2215947
 

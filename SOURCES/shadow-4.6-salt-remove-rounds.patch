@@ -1,0 +1,15 @@
+diff --git a/libmisc/salt.c b/libmisc/salt.c
+index c72447ea..4940d76e 100644
+--- a/libmisc/salt.c
++++ b/libmisc/salt.c
+@@ -248,6 +248,10 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
+ 		result[0] = '\0';
+ 	}
+ 
++	if (strstr(result, "rounds=") != NULL) {
++		result[3] = '\0';
++	}
++
+ 	/*
+ 	 * Concatenate a pseudo random salt.
+ 	 */
