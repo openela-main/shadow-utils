@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 8%{?dist}
+Release: 9%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -341,6 +341,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Wed Jul  3 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-9
+- login.defs: Update SHA_CRYPT_MAX_ROUNDS from 5000 to 100000. Resolves: RHEL-40195
+
 * Wed Jul 12 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-8
 - gpasswd: fix password leak. Resolves: #2215948
 
