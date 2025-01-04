@@ -1,0 +1,12 @@
+diff -up shadow-4.9/lib/sssd.c.disable-sssd shadow-4.9/lib/sssd.c
+--- shadow-4.9/lib/sssd.c.disable-sssd	2024-09-13 10:28:17.144473113 +0200
++++ shadow-4.9/lib/sssd.c	2024-09-13 10:29:07.135621104 +0200
+@@ -16,7 +16,7 @@
+ int sssd_flush_cache (int dbflags)
+ {
+ 	int status, code, rv;
+-	const char *cmd = "/usr/sbin/sss_cache";
++	const char   *cmd = "/usr/sbin/sss_cache_shadow_utils";
+ 	char *sss_cache_args = NULL;
+ 	const char *spawnedArgs[] = {"sss_cache", NULL, NULL};
+ 	const char *spawnedEnv[] = {NULL};

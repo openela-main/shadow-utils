@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 9%{?dist}
+Release: 10%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -80,6 +80,8 @@ Patch28: shadow-4.9-useradd-check-if-subid-range-exists.patch
 Patch29: shadow-4.9-skip-over-reserved-ids.patch
 # https://github.com/shadow-maint/shadow/commit/65c88a43a23c2391dcc90c0abda3e839e9c57904
 Patch30: shadow-4.9-gpasswd-fix-password-leak.patch
+# Downstream only patch
+Patch31: shadow-4.9-disable-sssd.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -171,6 +173,7 @@ Development files for shadow-utils-subid.
 %patch28 -p1 -b .useradd-check-if-subid-range-exists
 %patch29 -p1 -b .skip-over-reserved-ids
 %patch30 -p1 -b .gpasswd-fix-password-leak
+%patch31 -p1 -b .disable-sssd
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -341,6 +344,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Fri Sep 13 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-10
+- Disable sssd integration by default. Resolves: RHEL-56352
+
 * Wed Jul  3 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-9
 - login.defs: Update SHA_CRYPT_MAX_ROUNDS from 5000 to 100000. Resolves: RHEL-40195
 
