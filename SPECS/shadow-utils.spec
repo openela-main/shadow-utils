@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 10%{?dist}
+Release: 12%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -82,6 +82,8 @@ Patch29: shadow-4.9-skip-over-reserved-ids.patch
 Patch30: shadow-4.9-gpasswd-fix-password-leak.patch
 # Downstream only patch
 Patch31: shadow-4.9-disable-sssd.patch
+# Downstream only patch
+Patch32: shadow-4.9-salt-remove-rounds.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -174,6 +176,7 @@ Development files for shadow-utils-subid.
 %patch29 -p1 -b .skip-over-reserved-ids
 %patch30 -p1 -b .gpasswd-fix-password-leak
 %patch31 -p1 -b .disable-sssd
+%patch32 -p1 -b .salt-remove-rounds
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -344,6 +347,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Mon Nov  4 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-12
+- salt: remove rounds from salt string. Resolves: RHEL-58978
+
 * Fri Sep 13 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-10
 - Disable sssd integration by default. Resolves: RHEL-56352
 

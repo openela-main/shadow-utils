@@ -1,0 +1,24 @@
+diff --git a/libmisc/salt.c b/libmisc/salt.c
+index efef4e59..823b093d 100644
+--- a/libmisc/salt.c
++++ b/libmisc/salt.c
+@@ -439,6 +439,19 @@ static /*@observer@*/const char *gensalt (size_t salt_size)
+ 		exit (1);
+ 	}
+ 
++	char *pos = strstr(retval, "$rounds=");
++	if (pos != NULL) {
++		char str[128];
++		int len;
++		int ret;
++
++		ret = sprintf(str, "%lu", rounds);
++		if (ret > 0) {
++			len = strlen("$rounds=") + strlen(str);
++			memmove(pos, pos + len, strlen(pos + len) + 1);
++		}
++	}
++
+ 	return retval;
+ #else /* USE_XCRYPT_GENSALT */
+ 	/* Check if the result buffer is long enough. */
