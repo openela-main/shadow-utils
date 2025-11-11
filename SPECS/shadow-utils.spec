@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 12%{?dist}
+Release: 15%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -84,6 +84,10 @@ Patch30: shadow-4.9-gpasswd-fix-password-leak.patch
 Patch31: shadow-4.9-disable-sssd.patch
 # Downstream only patch
 Patch32: shadow-4.9-salt-remove-rounds.patch
+# Downstream only patch
+Patch33: shadow-4.9-shadow-logfd.patch
+# https://github.com/shadow-maint/shadow/commit/3b12ab7e29b0f3c766b39269da76a5ef3a753b22
+Patch34: shadow-4.9.0-vipw-restore-terminal.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -177,6 +181,8 @@ Development files for shadow-utils-subid.
 %patch30 -p1 -b .gpasswd-fix-password-leak
 %patch31 -p1 -b .disable-sssd
 %patch32 -p1 -b .salt-remove-rounds
+%patch33 -p1 -b .shadow-logfd
+%patch34 -p1 -b .vipw-restore-terminal
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -347,6 +353,10 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Mon May 26 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-15
+- nss.c: shadow_logfd to stderr. Resolves: RHEL-83431
+- vipw: restore the original terminal pgrp after editing. Resolves: RHEL-70844 and RHEL-72940
+
 * Mon Nov  4 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-12
 - salt: remove rounds from salt string. Resolves: RHEL-58978
 
