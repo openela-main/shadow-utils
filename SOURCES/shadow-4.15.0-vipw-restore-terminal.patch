@@ -1,0 +1,41 @@
+From 3b12ab7e29b0f3c766b39269da76a5ef3a753b22 Mon Sep 17 00:00:00 2001
+From: "Todd C. Miller" <Todd.Miller@sudo.ws>
+Date: Thu, 23 Jan 2025 19:11:09 -0700
+Subject: [PATCH] src/vipw.c: Restore the original terminal pgrp after editing
+
+This fixes a problem when the shell is not in monitor mode (job control
+enabled) which resulted in the terminal pgrp being set to an invalid
+value once vipw exited.
+
+Fixes: 7eca1112fbd7 (2019-11-11; "Fix vipw not resuming correctly when suspended")
+Closes: <https://github.com/shadow-maint/shadow/issues/1194>
+Reported-by: <https://github.com/yonecle>
+Tested-by: Alejandro Colomar <alx@kernel.org>
+Reviewed-by: Alejandro Colomar <alx@kernel.org>
+---
+ src/vipw.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/vipw.c b/src/vipw.c
+index a855e0d7..dbc87db9 100644
+--- a/src/vipw.c
++++ b/src/vipw.c
+@@ -372,8 +372,14 @@ vipwedit (const char *file, int (*file_lock) (void), int (*file_unlock) (void))
+ 		}
+ 	}
+ 
+-	if (orig_pgrp != -1)
++	if (orig_pgrp != -1) {
++		 /* Restore terminal pgrp after editing. */
++		if (tcsetpgrp(STDIN_FILENO, orig_pgrp) == -1) {
++			fprintf(stderr, "%s: %s: %s", Prog,
++			        "tcsetpgrp", strerror(errno));
++		}
+ 		sigprocmask(SIG_SETMASK, &omask, NULL);
++	}
+ 
+ 	if (-1 == pid) {
+ 		vipwexit (editor, 1, 1);
+-- 
+2.49.0
+

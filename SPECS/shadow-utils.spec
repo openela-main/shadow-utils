@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.15.0
-Release: 5%{?dist}
+Release: 8%{?dist}
 Epoch: 2
 License: BSD-3-Clause AND GPL-2.0-or-later
 URL: https://github.com/shadow-maint/shadow
@@ -32,6 +32,8 @@ Patch4: shadow-4.15.0-account-tools-setuid.patch
 Patch5: shadow-4.15.0-getdef-spurious-error.patch
 # https://github.com/shadow-maint/shadow/commit/903593249630054ab5df327481f7386f718088cc
 Patch6: shadow-4.15.0-useradd-fix-write-full-return.patch
+# https://github.com/shadow-maint/shadow/commit/3b12ab7e29b0f3c766b39269da76a5ef3a753b22
+Patch7: shadow-4.15.0-vipw-restore-terminal.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -280,6 +282,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.a
 %{_libdir}/libsubid.so
 
 %changelog
+* Mon May 26 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-8
+- vipw: restore the original terminal pgrp after editing. Resolves: RHEL-93172
+
 * Mon Nov  4 2024 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-5
 - Disable nscd. Resolves: RHEL-56355
 - useradd: fix write_full() return value
