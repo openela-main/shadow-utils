@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.6
-Release: 22%{?dist}
+Release: 23%{?dist}
 Epoch: 2
 URL: http://pkg-shadow.alioth.debian.org/
 Source0: https://github.com/shadow-maint/shadow/releases/download/v%{version}/shadow-%{version}.tar.xz
@@ -101,6 +101,10 @@ Patch66: shadow-4.6-skip-over-reserved-ids.patch
 # https://github.com/shadow-maint/shadow/commit/65c88a43a23c2391dcc90c0abda3e839e9c57904
 Patch67: shadow-4.6-gpasswd-fix-password-leak.patch
 Patch68: shadow-4.6-salt-remove-rounds.patch
+# Downstream only patch
+Patch69: shadow-4.6-shadow-logfd.patch
+# https://github.com/shadow-maint/shadow/commit/ce66b8d5eb2c12356fd2975ff2d7d6eeaed7d6a8
+Patch70: shadow-4.6-pwck-grpck-sssd-cache.patch
 
 License: BSD and GPLv2+
 Group: System Environment/Base
@@ -205,6 +209,8 @@ Development files for shadow-utils-subid.
 %patch66 -p1 -b .skip-over-reserved-ids
 %patch67 -p1 -b .gpasswd-fix-password-leak
 %patch68 -p1 -b .salt-remove-rounds
+%patch69 -p1 -b .shadow-logfd
+%patch70 -p1 -b .pwck-grpck-sssd-cache
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -375,6 +381,11 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Fri Nov 14 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-23
+- nss.c: shadow_logfd to stderr. Resolves: RHEL-83432
+- pwck/grpck: only force nscd/sssd caches flush if anything was changed
+  Resolves: RHEL-123912
+
 * Tue Nov 21 2023 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.6-22
 - salt: remove rounds from salt string. Resolves: RHEL-16668
 

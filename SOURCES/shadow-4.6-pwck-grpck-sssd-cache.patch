@@ -1,0 +1,32 @@
+diff -up shadow-4.6/src/grpck.c.pwck-grpck-sssd-cache.patch shadow-4.6/src/grpck.c
+--- shadow-4.6/src/grpck.c.pwck-grpck-sssd-cache.patch	2025-11-11 16:22:09.100423804 +0100
++++ shadow-4.6/src/grpck.c	2025-11-11 16:25:14.843456014 +0100
+@@ -872,8 +872,10 @@ int main (int argc, char **argv)
+ 	/* Commit the change in the database if needed */
+ 	close_files (changed);
+ 
+-	nscd_flush_cache ("group");
+-	sssd_flush_cache (SSSD_DB_GROUP);
++	if (!read_only && changed) {
++		nscd_flush_cache ("group");
++		sssd_flush_cache (SSSD_DB_GROUP);
++	}
+ 
+ 	/*
+ 	 * Tell the user what we did and exit.
+diff -up shadow-4.6/src/pwck.c.pwck-grpck-sssd-cache.patch shadow-4.6/src/pwck.c
+--- shadow-4.6/src/pwck.c.pwck-grpck-sssd-cache.patch	2025-11-11 16:22:09.101298653 +0100
++++ shadow-4.6/src/pwck.c	2025-11-11 16:25:53.329987225 +0100
+@@ -878,8 +878,10 @@ int main (int argc, char **argv)
+ 
+ 	close_files (changed);
+ 
+-	nscd_flush_cache ("passwd");
+-	sssd_flush_cache (SSSD_DB_PASSWD);
++	if (!read_only && changed) {
++		nscd_flush_cache ("passwd");
++		sssd_flush_cache (SSSD_DB_PASSWD);
++	}
+ 
+ 	/*
+ 	 * Tell the user what we did and exit.
