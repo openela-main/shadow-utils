@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.15.0
-Release: 8%{?dist}
+Release: 10%{?dist}
 Epoch: 2
 License: BSD-3-Clause AND GPL-2.0-or-later
 URL: https://github.com/shadow-maint/shadow
@@ -34,6 +34,10 @@ Patch5: shadow-4.15.0-getdef-spurious-error.patch
 Patch6: shadow-4.15.0-useradd-fix-write-full-return.patch
 # https://github.com/shadow-maint/shadow/commit/3b12ab7e29b0f3c766b39269da76a5ef3a753b22
 Patch7: shadow-4.15.0-vipw-restore-terminal.patch
+# https://github.com/shadow-maint/shadow/commit/03a10499fb6d499e6db06d44007d67893db48e32
+Patch8: shadow-4.15.0-passwd-audit.patch
+# Downstream only
+Patch9: shadow-4.15.0-passwd-database.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -282,6 +286,13 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.a
 %{_libdir}/libsubid.so
 
 %changelog
+* Wed Feb 25 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-10
+- passwd.c: lock, open, close and unlock passwd database
+  Resolves: RHEL-151713
+
+* Wed Feb 11 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-9
+- passwd.c: add audit messages for passwd. Resolves: RHEL-141919
+
 * Mon May 26 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-8
 - vipw: restore the original terminal pgrp after editing. Resolves: RHEL-93172
 

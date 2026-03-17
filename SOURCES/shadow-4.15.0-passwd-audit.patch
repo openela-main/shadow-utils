@@ -1,0 +1,176 @@
+From 7b3deac2de133c45af5b266c573e7ec0b9157b0b Mon Sep 17 00:00:00 2001
+From: Iker Pedrosa <ipedrosa@redhat.com>
+Date: Mon, 9 Feb 2026 10:03:32 +0100
+Subject: [PATCH] src/passwd.c: add audit messages for passwd
+
+Add comprehensive audit messages for password operations, including
+unlock, delete, expire and aging operations.
+
+Signed-off-by: Iker Pedrosa <ipedrosa@redhat.com>
+---
+ src/passwd.c | 99 +++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 95 insertions(+), 4 deletions(-)
+
+diff --git a/src/passwd.c b/src/passwd.c
+index 0afae4d7..1fa99448 100644
+--- a/src/passwd.c
++++ b/src/passwd.c
+@@ -547,6 +547,7 @@ static void update_noshadow (void)
+ {
+ 	const struct passwd *pw;
+ 	struct passwd *npw;
++	int ret;
+ 
+ 	if (pw_lock () == 0) {
+ 		(void) fprintf (stderr,
+@@ -573,8 +574,29 @@ static void update_noshadow (void)
+ 	if (NULL == npw) {
+ 		oom ();
+ 	}
+-	npw->pw_passwd = update_crypt_pw (npw->pw_passwd);
+-	if (pw_update (npw) == 0) {
++	npw->pw_passwd = update_crypt_pw (npw->pw_passwd);
++	ret = pw_update(npw);
++#ifdef WITH_AUDIT
++	if (lflg) {
++		audit_logger(AUDIT_ACCT_LOCK, "passwd",
++		             "locked-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	if (uflg) {
++		audit_logger(AUDIT_ACCT_UNLOCK, "passwd",
++		             "unlocked-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	if (dflg) {
++		audit_logger(AUDIT_USER_CHAUTHTOK, "passwd",
++		             "deleted-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++#endif /* WITH_AUDIT */
++	if (ret == 0) {
+ 		(void) fprintf (stderr,
+ 		                _("%s: failed to prepare the new %s entry '%s'\n"),
+ 		                Prog, pw_dbname (), npw->pw_name);
+@@ -599,8 +621,18 @@ static void update_noshadow (void)
+ 
+ static void update_shadow (void)
+ {
++	const struct passwd *pw;
+ 	const struct spwd *sp;
+ 	struct spwd *nsp;
++	int ret;
++
++	pw = pw_locate(name);
++	if (NULL == pw) {
++		fprintf(stderr,
++		        _("%s: user '%s' does not exist in %s\n"),
++		        Prog, name, pw_dbname ());
++		fail_exit (E_NOPERM);
++	}
+ 
+ 	if (spw_lock () == 0) {
+ 		(void) fprintf (stderr,
+@@ -691,7 +722,45 @@ static void update_shadow(bool process_selinux)
+ 		nsp->sp_lstchg = 0;
+ 	}
+ 
+-	if (spw_update (nsp) == 0) {
++	ret = spw_update(nsp);
++#ifdef WITH_AUDIT
++	if (lflg) {
++		audit_logger(AUDIT_ACCT_LOCK, "passwd",
++		             "locked-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	if (uflg) {
++		audit_logger(AUDIT_ACCT_UNLOCK, "passwd",
++		             "unlocked-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	if (dflg) {
++		audit_logger(AUDIT_USER_CHAUTHTOK, "passwd",
++		             "deleted-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	if (eflg) {
++		audit_logger(AUDIT_USER_MGMT, "passwd",
++		             "expired-password",
++		             NULL, pw->pw_uid,
++		             ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++	/* Audit aging parameter changes if any were modified */
++	if (xflg || nflg || wflg || iflg) {
++		char aging_msg[256];
++		snprintf(aging_msg, sizeof(aging_msg),
++		         "changed-password-aging min=%ld max=%ld warn=%ld inact=%ld",
++		         nsp->sp_min, nsp->sp_max, nsp->sp_warn, nsp->sp_inact);
++		audit_logger (AUDIT_USER_MGMT, "passwd",
++		              aging_msg,
++		              NULL, pw->pw_uid,
++		              ret ? SHADOW_AUDIT_SUCCESS : SHADOW_AUDIT_FAILURE);
++	}
++#endif /* WITH_AUDIT */
++	if (ret == 0) {
+ 		(void) fprintf (stderr,
+ 		                _("%s: failed to prepare the new %s entry '%s'\n"),
+ 		                Prog, spw_dbname (), nsp->sp_namp);
+@@ -755,6 +824,10 @@ main(int argc, char **argv)
+ 		do_update_age = true;
+ 	}
+ 
++#ifdef WITH_AUDIT
++	audit_help_open();
++#endif /* WITH_AUDIT */
++
+ 	/*
+ 	 * The program behaves differently when executed by root than when
+ 	 * executed by a normal user.
+@@ -987,6 +1060,12 @@ main(int argc, char **argv)
+ 	}
+ 
+ 	if (anyflag && !amroot) {
++#ifdef WITH_AUDIT
++		audit_logger(AUDIT_USER_CHAUTHTOK, "passwd",
++		             "attempted-to-change-password-attribute",
++		             NULL, getuid(),
++		             SHADOW_AUDIT_FAILURE);
++#endif /* WITH_AUDIT */
+ 		(void) fprintf (stderr, _("%s: Permission denied.\n"), Prog);
+ 		exit (E_NOPERM);
+ 	}
+@@ -1002,6 +1081,12 @@ main(int argc, char **argv)
+ 	/* only do this check when getuid()==0 because it's a pre-condition for
+ 	   changing a password without entering the old one */
+ 	if (amroot && (check_selinux_permit (Prog) != 0)) {
++#ifdef WITH_AUDIT
++		audit_logger(AUDIT_USER_CHAUTHTOK, "passwd",
++		             "attempted-to-change-password",
++		             NULL, pw->pw_uid,
++		             SHADOW_AUDIT_FAILURE);
++#endif /* WITH_AUDIT */
+ 		SYSLOG ((LOG_ALERT,
+ 		         "root is not authorized by SELinux to change the password of %s",
+ 		         name));
+@@ -1017,6 +1102,12 @@ main(int argc, char **argv)
+ 	 * check if I'm root.
+ 	 */
+ 	if (!amroot && (pw->pw_uid != getuid ())) {
++#ifdef WITH_AUDIT
++		audit_logger(AUDIT_USER_CHAUTHTOK, "passwd",
++		             "attempted-to-change-password",
++		             NULL, pw->pw_uid,
++		             SHADOW_AUDIT_FAILURE);
++#endif /* WITH_AUDIT */
+ 		(void) fprintf (stderr,
+ 		                _("%s: You may not view or modify password information for %s.\n"),
+ 		                Prog, name);
+-- 
+2.53.0
+

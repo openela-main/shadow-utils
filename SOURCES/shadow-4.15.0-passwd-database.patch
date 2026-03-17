@@ -1,0 +1,46 @@
+--- shadow-4.15.0/src/passwd.c.orig	2026-02-23 14:51:37.436277148 +0100
++++ shadow-4.15.0/src/passwd.c	2026-02-23 14:53:17.130933320 +0100
+@@ -626,6 +626,20 @@
+ 	struct spwd *nsp;
+ 	int ret;
+ 
++	if (pw_lock () == 0) {
++		(void) fprintf (stderr,
++		                _("%s: cannot lock %s; try again later.\n"),
++		                Prog, pw_dbname ());
++		exit (E_PWDBUSY);
++	}
++	pw_locked = true;
++	if (pw_open (O_CREAT | O_RDWR) == 0) {
++		(void) fprintf (stderr,
++		                _("%s: cannot open %s\n"),
++		                Prog, pw_dbname ());
++		SYSLOG ((LOG_WARN, "cannot open %s", pw_dbname ()));
++		fail_exit (E_MISSING);
++	}
+ 	pw = pw_locate(name);
+ 	if (NULL == pw) {
+ 		fprintf(stderr,
+@@ -760,6 +774,22 @@
+ 		/* continue */
+ 	}
+ 	spw_locked = false;
++
++	if (pw_close () == 0) {
++		(void) fprintf (stderr,
++		                _("%s: failure while writing changes to %s\n"),
++		                Prog, pw_dbname ());
++		SYSLOG ((LOG_ERR, "failure while writing changes to %s", pw_dbname ()));
++		fail_exit (E_FAILURE);
++	}
++	if (pw_unlock () == 0) {
++		(void) fprintf (stderr,
++		                _("%s: failed to unlock %s\n"),
++		                Prog, pw_dbname ());
++		SYSLOG ((LOG_ERR, "failed to unlock %s", pw_dbname ()));
++		/* continue */
++	}
++	pw_locked = false;
+ }
+ 
+ /*
