@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.9
-Release: 15%{?dist}
+Release: 16%{?dist}
 Epoch: 2
 License: BSD and GPLv2+
 URL: https://github.com/shadow-maint/shadow
@@ -88,6 +88,8 @@ Patch32: shadow-4.9-salt-remove-rounds.patch
 Patch33: shadow-4.9-shadow-logfd.patch
 # https://github.com/shadow-maint/shadow/commit/3b12ab7e29b0f3c766b39269da76a5ef3a753b22
 Patch34: shadow-4.9.0-vipw-restore-terminal.patch
+# https://github.com/shadow-maint/shadow/commit/c1678a9e2759f60a2daf5e136c76fa6e47d6f400
+Patch35: shadow-4.9-groupmod-help.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -183,6 +185,7 @@ Development files for shadow-utils-subid.
 %patch32 -p1 -b .salt-remove-rounds
 %patch33 -p1 -b .shadow-logfd
 %patch34 -p1 -b .vipw-restore-terminal
+%patch35 -p1 -b .groupmod-help
 
 iconv -f ISO88591 -t utf-8  doc/HOWTO > doc/HOWTO.utf8
 cp -f doc/HOWTO.utf8 doc/HOWTO
@@ -240,7 +243,7 @@ rm $RPM_BUILD_ROOT%{_bindir}/su
 rm $RPM_BUILD_ROOT%{_bindir}/faillog
 rm $RPM_BUILD_ROOT%{_sysconfdir}/login.access
 rm $RPM_BUILD_ROOT%{_sysconfdir}/limits
-rm $RPM_BUILD_ROOT%{_sbindir}/logoutd
+rm $RPM_BUILD_ROOT/usr/sbin/logoutd
 rm $RPM_BUILD_ROOT%{_sbindir}/nologin
 rm $RPM_BUILD_ROOT%{_mandir}/man1/chfn.*
 rm $RPM_BUILD_ROOT%{_mandir}/*/man1/chfn.*
@@ -308,16 +311,16 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %attr(0755,root,root) %caps(cap_setgid=ep) %{_bindir}/newgidmap
 %attr(0755,root,root) %caps(cap_setuid=ep) %{_bindir}/newuidmap
 %{_sbindir}/adduser
-%attr(0755,root,root)   %{_sbindir}/user*
-%attr(0755,root,root)   %{_sbindir}/group*
-%{_sbindir}/grpck
-%{_sbindir}/pwck
-%{_sbindir}/*conv
-%{_sbindir}/chpasswd
-%{_sbindir}/chgpasswd
-%{_sbindir}/newusers
-%{_sbindir}/vipw
-%{_sbindir}/vigr
+%attr(0755,root,root)   /usr/sbin/user*
+%attr(0755,root,root)   /usr/sbin/group*
+/usr/sbin/grpck
+/usr/sbin/pwck
+/usr/sbin/*conv
+/usr/sbin/chpasswd
+/usr/sbin/chgpasswd
+/usr/sbin/newusers
+/usr/sbin/vipw
+/usr/sbin/vigr
 %{_mandir}/man1/chage.1*
 %{_mandir}/man1/gpasswd.1*
 %{_mandir}/man1/sg.1*
@@ -353,6 +356,9 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.la
 %{_libdir}/libsubid.so
 
 %changelog
+* Tue Dec  9 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-16
+- groupmod.c: --help wfix. Resolves: RHEL-130879
+
 * Mon May 26 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.9-15
 - nss.c: shadow_logfd to stderr. Resolves: RHEL-83431
 - vipw: restore the original terminal pgrp after editing. Resolves: RHEL-70844 and RHEL-72940
