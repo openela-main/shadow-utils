@@ -1,7 +1,7 @@
 Summary: Utilities for managing accounts and shadow password files
 Name: shadow-utils
 Version: 4.15.0
-Release: 10%{?dist}
+Release: 11%{?dist}
 Epoch: 2
 License: BSD-3-Clause AND GPL-2.0-or-later
 URL: https://github.com/shadow-maint/shadow
@@ -34,10 +34,12 @@ Patch5: shadow-4.15.0-getdef-spurious-error.patch
 Patch6: shadow-4.15.0-useradd-fix-write-full-return.patch
 # https://github.com/shadow-maint/shadow/commit/3b12ab7e29b0f3c766b39269da76a5ef3a753b22
 Patch7: shadow-4.15.0-vipw-restore-terminal.patch
+# https://github.com/shadow-maint/shadow/commit/c1678a9e2759f60a2daf5e136c76fa6e47d6f400
+Patch8: shadow-4.15.0-groupmod-help.patch
 # https://github.com/shadow-maint/shadow/commit/03a10499fb6d499e6db06d44007d67893db48e32
-Patch8: shadow-4.15.0-passwd-audit.patch
+Patch9: shadow-4.15.0-passwd-audit.patch
 # Downstream only
-Patch9: shadow-4.15.0-passwd-database.patch
+Patch10: shadow-4.15.0-passwd-database.patch
 
 ### Dependencies ###
 Requires: audit-libs >= 1.6.5
@@ -168,7 +170,7 @@ rm $RPM_BUILD_ROOT%{_bindir}/groups
 rm $RPM_BUILD_ROOT%{_bindir}/login
 rm $RPM_BUILD_ROOT%{_bindir}/su
 rm $RPM_BUILD_ROOT%{_bindir}/faillog
-rm $RPM_BUILD_ROOT%{_sbindir}/logoutd
+rm $RPM_BUILD_ROOT/usr/sbin/logoutd
 rm $RPM_BUILD_ROOT%{_sbindir}/nologin
 rm $RPM_BUILD_ROOT%{_mandir}/man1/chfn.*
 rm $RPM_BUILD_ROOT%{_mandir}/*/man1/chfn.*
@@ -240,16 +242,16 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.a
 %attr(0755,root,root) %caps(cap_setuid=ep) %{_bindir}/newuidmap
 %attr(4755,root,root) %{_bindir}/passwd
 %{_sbindir}/adduser
-%attr(0755,root,root)   %{_sbindir}/user*
-%attr(0755,root,root)   %{_sbindir}/group*
-%{_sbindir}/grpck
-%{_sbindir}/pwck
-%{_sbindir}/*conv
-%{_sbindir}/chpasswd
-%{_sbindir}/chgpasswd
-%{_sbindir}/newusers
-%{_sbindir}/vipw
-%{_sbindir}/vigr
+%attr(0755,root,root)   /usr/sbin/user*
+%attr(0755,root,root)   /usr/sbin/group*
+/usr/sbin/grpck
+/usr/sbin/pwck
+/usr/sbin/*conv
+/usr/sbin/chpasswd
+/usr/sbin/chgpasswd
+/usr/sbin/newusers
+/usr/sbin/vipw
+/usr/sbin/vigr
 %{_mandir}/man1/chage.1*
 %{_mandir}/man1/gpasswd.1*
 %{_mandir}/man1/sg.1*
@@ -286,12 +288,16 @@ rm -f $RPM_BUILD_ROOT/%{_libdir}/libsubid.a
 %{_libdir}/libsubid.so
 
 %changelog
-* Wed Feb 25 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-10
+* Mon Feb 23 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-11
 - passwd.c: lock, open, close and unlock passwd database
-  Resolves: RHEL-151713
+  Resolves: RHEL-151055
+  Resolves: RHEL-150955
 
-* Wed Feb 11 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-9
+* Wed Feb 11 2026 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-10
 - passwd.c: add audit messages for passwd. Resolves: RHEL-141919
+
+* Thu Nov 27 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-9
+- groupmod.c: --help wfix. Resolves: RHEL-105779
 
 * Mon May 26 2025 Iker Pedrosa <ipedrosa@redhat.com> - 2:4.15.0-8
 - vipw: restore the original terminal pgrp after editing. Resolves: RHEL-93172

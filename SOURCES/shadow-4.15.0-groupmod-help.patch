@@ -1,0 +1,29 @@
+From c1678a9e2759f60a2daf5e136c76fa6e47d6f400 Mon Sep 17 00:00:00 2001
+From: Alejandro Colomar <alx@kernel.org>
+Date: Wed, 30 Jul 2025 00:18:33 +0200
+Subject: [PATCH] src/groupmod.c: --help: wfix
+
+Closes: <https://github.com/shadow-maint/shadow/issues/1313>
+Reported-by: Arshdeep Singh <arshdeepsinghsahni8@gmail.com>
+Signed-off-by: Alejandro Colomar <alx@kernel.org>
+---
+ src/groupmod.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/groupmod.c b/src/groupmod.c
+index 34b670f6..2cdb2067 100644
+--- a/src/groupmod.c
++++ b/src/groupmod.c
+@@ -132,7 +132,8 @@ static void usage (int status)
+ 	                "                                PASSWORD\n"), usageout);
+ 	(void) fputs (_("  -R, --root CHROOT_DIR         directory to chroot into\n"), usageout);
+ 	(void) fputs (_("  -P, --prefix PREFIX_DIR       prefix directory where are located the /etc/* files\n"), usageout);
+-	(void) fputs (_("  -U, --users USERS             list of user members of this group\n"), usageout);
++	(void) fputs (_("  -U, --users USERS             comma-separated list of users to add as\n"
++	                "                                members of this group\n"), usageout);
+ 	(void) fputs ("\n", usageout);
+ 	exit (status);
+ }
+-- 
+2.52.0
+
